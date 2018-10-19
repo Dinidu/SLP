@@ -3,7 +3,7 @@ Single Layer Perceptron ::
 Usage ::
 
 ```
-main [-h] -f FILE -lr LEARNING_RATE -lmse LMSE
+main [-h] -f FILE -lr LEARNING_RATE -ep EPOCH_VALUE
 ```
 
 Help ::
