@@ -7,10 +7,13 @@ class NeuronLayer():
 
 
 class NeuralNetwork():
-    def __init__(self):
+    def __init__(self,iterations,hidden_layers,neurons_in_hidden_layer):
+        self.number_of_training_iterations = iterations
+        self.number_of_hidden_layers = hidden_layers
+        self.number_of_neurons_in_hidden_layer = neurons_in_hidden_layer
+        self.weightVectors = []
         pass
 
-    # The Sigmoid function, which describes an S shaped curve.
     # We pass the weighted sum of the inputs through this function to
     # normalise them between 0 and 1.
     def __sigmoid(self, x):
@@ -24,128 +27,96 @@ class NeuralNetwork():
 
     # We train the neural network through a process of trial and error.
     # Adjusting the synaptic weights each time.
-    def train(self, training_set_inputs, training_set_outputs, number_of_training_iterations, number_of_hidden_layers,number_of_neurons_in_hidden_layer):
-        weightVectors = []
-        for layer in range(number_of_hidden_layers) :
-            if not weightVectors:
-                weights = NeuronLayer(len(training_set_inputs[0]),number_of_neurons_in_hidden_layer)
-                weightVectors.append(weights)
-            elif len(weightVectors) == number_of_hidden_layers :
+    def train(self, training_set_inputs, training_set_outputs):
+        self.weightVectors = []
+        for layer in range(self.number_of_hidden_layers) :
+            if not self.weightVectors:
+                weights = NeuronLayer(len(training_set_inputs[0]),self.number_of_neurons_in_hidden_layer)
+                self.weightVectors.append(weights)
+            elif len(self.weightVectors) == self.number_of_hidden_layers :
                 # TODO : assumption is output layer is having only one neuron
-                weights = NeuronLayer(number_of_neurons_in_hidden_layer,1)
-                weightVectors.append(weights)
+                weights = NeuronLayer(self.number_of_neurons_in_hidden_layer,1)
+                self.weightVectors.append(weights)
             else:
                 # TODO : assumption is each hidden layer is having similar numberof neurons
-                weights = NeuronLayer(number_of_neurons_in_hidden_layer,number_of_neurons_in_hidden_layer)
-                weightVectors.append(weights)
+                weights = NeuronLayer(self.number_of_neurons_in_hidden_layer,self.number_of_neurons_in_hidden_layer)
+                self.weightVectors.append(weights)
 
-        for iteration in range(number_of_training_iterations):
+        for iteration in range(self.number_of_training_iterations):
             #forward pass
             # Pass the training set through our neural network
             outputVectors = []
-            for layer in range(number_of_hidden_layers):
+            for layer in range(self.number_of_hidden_layers):
                 if not outputVectors:
                     inputs = training_set_inputs
                 else :
                     inputs = outputVectors[layer-1]
-                weight = weightVectors[layer-1]
+                weight = self.weightVectors[layer-1]
                 ithLayerOutput = self.getLayerOutput(inputs, weight)
                 outputVectors.append(ithLayerOutput)
 
-            finaloutput = self.getLayerOutput(outputVectors[number_of_hidden_layers],weightVectors[number_of_hidden_layers])
+            finaloutput = self.getLayerOutput(outputVectors[self.number_of_hidden_layers],self.weightVectors[self.number_of_hidden_layers])
             outputVectors.append(finaloutput)
 
             errorVectors = []
             gradientVectors = []
 
-            for layer in range(number_of_hidden_layers):
+            # # Calculate the error for each layer (The difference between the desired output and the predicted output).
+            for layer in range(self.number_of_hidden_layers):
                 if not errorVectors:
-                    error_vector = training_set_outputs - outputVectors[number_of_hidden_layers]
+                    error_vector = training_set_outputs - outputVectors[self.number_of_hidden_layers]
                     errorVectors.append(error_vector)
-                    gradient_vector = error_vector * self.__sigmoid_derivative(outputVectors[number_of_hidden_layers])
+                    gradient_vector = error_vector * self.__sigmoid_derivative(outputVectors[self.number_of_hidden_layers])
                     gradientVectors.append(gradient_vector)
-                elif len(errorVectors) == number_of_hidden_layers:
-                    error_vector = gradientVectors[number_of_hidden_layers] * self.__sigmoid_derivative(outputVectors[0])
+                elif len(errorVectors) == self.number_of_hidden_layers:
+                    error_vector = gradientVectors[self.number_of_hidden_layers] * self.__sigmoid_derivative(outputVectors[0])
                     errorVectors.append(error_vector)
-                    gradient_vector = error_vector * self.__sigmoid_derivative(outputVectors[number_of_hidden_layers])
+                    gradient_vector = error_vector * self.__sigmoid_derivative(outputVectors[self.number_of_hidden_layers])
                     gradientVectors.append(gradient_vector)
                 else :
-                    error_vector = gradientVectors[layer-1].dot(weightVectors[number_of_hidden_layers-layer].T)
+                    error_vector = gradientVectors[layer-1].dot(self.weightVectors[self.number_of_hidden_layers-layer].T)
                     errorVectors.append(error_vector)
-                    gradient_vector = error_vector * self.__sigmoid_derivative(outputVectors[number_of_hidden_layers-layer])
+                    gradient_vector = error_vector * self.__sigmoid_derivative(outputVectors[self.number_of_hidden_layers-layer])
                     gradientVectors.append(gradient_vector)
 
-            for layer in range(number_of_hidden_layers):
+            for layer in range(self.number_of_hidden_layers):
                 # Calculate how much to adjust the weights by
                 if layer ==0 :
-                    layer_adjustment = training_set_inputs.T.dot(gradientVectors[number_of_hidden_layers-layer])
+                    layer_adjustment = training_set_inputs.T.dot(gradientVectors[self.number_of_hidden_layers-layer])
                     # Adjust the weights.
-                    weightVectors[layer] += layer_adjustment
+                    self.weightVectors[layer] += layer_adjustment
                 else :
-                    yer_adjustment = outputVectors[layer].T.dot(gradientVectors[number_of_hidden_layers - layer])
+                    layer_adjustment = outputVectors[layer].T.dot(gradientVectors[self.number_of_hidden_layers - layer])
                     # Adjust the weights.
-                    weightVectors[layer] += layer_adjustment
+                    self.weightVectors[layer] += layer_adjustment
 
-            # # Calculate the error for layer 2 (The difference between the desired output
-            # # and the predicted output).
-            # layer2_error = training_set_outputs - output_from_layer_2
-            # layer2_delta = layer2_error * self.__sigmoid_derivative(output_from_layer_2)
-            #
-            # # Calculate the error for layer 1 (By looking at the weights in layer 1,
-            # # we can determine by how much layer 1 contributed to the error in layer 2).
-            # layer1_error = layer2_delta.dot(self.layer2.synaptic_weights.T)
-            # layer1_delta = layer1_error * self.__sigmoid_derivative(output_from_layer_1)
-            #
-            # # Calculate how much to adjust the weights by
-            # layer1_adjustment = training_set_inputs.T.dot(layer1_delta)
-            # layer2_adjustment = output_from_layer_1.T.dot(layer2_delta)
-            #
-            # # Adjust the weights.
-            # self.layer1.synaptic_weights += layer1_adjustment
-            # self.layer2.synaptic_weights += layer2_adjustment
-
-    # The neural network thinks.
+    # The neural network output.
     def getLayerOutput(self, inputs,weights):
         output = self.__sigmoid(dot(inputs, weights))
         return output
 
-    # The neural network prints its weights
-    def print_weights(self):
-        print "    Layer 1 (4 neurons, each with 3 inputs): "
-        print self.layer1.synaptic_weights
-        print "    Layer 2 (1 neuron, with 4 inputs):"
-        print self.layer2.synaptic_weights
-
 if __name__ == "__main__":
 
-    #Seed the random number generator
-    random.seed(1)
+    neural_network = NeuralNetwork(2,3,4)
 
-    # # Create layer 1 (4 neurons, each with 3 inputs)
-    # layer1 = NeuronLayer(4, 3)
-    #
-    # # Create layer 2 (a single neuron with 4 inputs)
-    # layer2 = NeuronLayer(1, 4)
+    training_set_inputs = array([[0, 0, 1],
+                                 [0, 1, 1],
+                                 [1, 0, 1],
+                                 [0, 1, 0],
+                                 [1, 0, 0],
+                                 [1, 1, 1],
+                                 [0, 0, 0]])
 
-    # Combine the layers to create a neural network
-    neural_network = NeuralNetwork()
-
-    # print "Stage 1) Random starting synaptic weights: "
-    # neural_network.print_weights()
-
-    # The training set. We have 7 examples, each consisting of 3 input values
-    # and 1 output value.
-    training_set_inputs = array([[0, 0, 1], [0, 1, 1], [1, 0, 1], [0, 1, 0], [1, 0, 0], [1, 1, 1], [0, 0, 0]])
     training_set_outputs = array([[0, 1, 1, 1, 1, 0, 0]]).T
 
     # Train the neural network using the training set.
     # Do it 60,000 times and make small adjustments each time.
-    neural_network.train(training_set_inputs, training_set_outputs, 2,3,4)
+    neural_network.train(training_set_inputs, training_set_outputs)
 
     # print "Stage 2) New synaptic weights after training: "
     # neural_network.print_weights()
     #
     # # Test the neural network with a new situation.
     # print "Stage 3) Considering a new situation [1, 1, 0] -> ?: "
-    # hidden_state, output = neural_network.think(array([1, 1, 0]))
+    # hidden_state, output = neural_network.getLayerOutput(array([1, 1, 0]))
     # print output
