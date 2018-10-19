@@ -110,13 +110,8 @@ if __name__ == "__main__":
     training_set_outputs = array([[0, 1, 1, 1, 1, 0, 0]]).T
 
     # Train the neural network using the training set.
-    # Do it 60,000 times and make small adjustments each time.
     neural_network.train(training_set_inputs, training_set_outputs)
 
-    # print "Stage 2) New synaptic weights after training: "
-    # neural_network.print_weights()
-    #
     # # Test the neural network with a new situation.
-    # print "Stage 3) Considering a new situation [1, 1, 0] -> ?: "
-    # hidden_state, output = neural_network.getLayerOutput(array([1, 1, 0]))
-    # print output
+    output = neural_network.getLayerOutput(array([1, 1, 0]))
+    print output
