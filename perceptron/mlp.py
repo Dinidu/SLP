@@ -1,10 +1,8 @@
 from numpy import exp, array, random, dot
 
-
 class NeuronLayer():
     def __init__(self, number_of_neurons, number_of_inputs_per_neuron):
         self.synaptic_weights = 2 * random.random((number_of_inputs_per_neuron, number_of_neurons)) - 1
-
 
 class NeuralNetwork():
     def __init__(self,iterations,hidden_layers,neurons_in_hidden_layer):
@@ -12,7 +10,6 @@ class NeuralNetwork():
         self.number_of_hidden_layers = hidden_layers
         self.number_of_neurons_in_hidden_layer = neurons_in_hidden_layer
         self.weightVectors = []
-        pass
 
     # We pass the weighted sum of the inputs through this function to
     # normalise them between 0 and 1.
