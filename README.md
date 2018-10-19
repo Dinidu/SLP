@@ -10,7 +10,7 @@ Help ::
 ```
 python main -h
 
-usage: main [-h] -f FILE -lr LEARNING_RATE -lmse LMSE
+usage: main [-h] -f FILE -lr LEARNING_RATE -ep EPOCH_VALUE
 
 Single layer perceptron
 
@@ -19,12 +19,11 @@ optional arguments:
   -f FILE, --file FILE  dataset file in csv
   -lr LEARNING_RATE, --learning_rate LEARNING_RATE
                         learning rate of the algorithm
-  -lmse LMSE, --lmse LMSE
-                        Lowest MSE
+  -ep EPOCH_VALUE --epochs 
 
 ```
 Run Example::
 ```
-python main -f test/input.csv -lr 0.001 -lmse 0.00000001
+python main -f test/input.csv -lr 0.001 -ep 5000
 ```
 

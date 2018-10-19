@@ -51,6 +51,16 @@ class Perceptron(object):
     def sigmoid(x):
         return 1 / (1 + np.e ** -x)
 
+    def recall(self, inputs):
+        res = self.result(inputs)
+        print("result ",res)
+        if res > 0.5:
+            return 1
+        elif res <= 0.5:
+            return 0
+        else:
+            return 'FAIL'
+
 
 
 
